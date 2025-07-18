@@ -8,9 +8,22 @@ export const getAllProducts = (req, res) => {
     res.json(products);
 }
 
-export const getProductByName = (req, res) => {
+export const searchByNameProduct = (req, res) => {
     const { nombre } = req.query;
-    const filtered = products.filter((item) => item.nombre.toLowerCase().includes(nombre.toLocaleLowerCase()))
+    const keys = Object.keys(req.query)
+    const invalidParams = keys.filter(key => key !== 'nombre');
+
+    if (invalidParams.length > 0) {
+        if (invalidParams.length === 1) {
+            return res.status(400).json({ error: `El parámetro '${invalidParams}' no es válido` });
+        } else if (invalidParams.length > 1) {
+            return res.status(400).json({ error: `Los parámetros '${invalidParams}' no son válidos` });
+        } else {
+            return res.status(400).json({ error: `No se proporcionó ningún parámetro válido de búsqueda` });
+        }
+    }
+
+    const filtered = products.filter((item) => item.nombre.toLowerCase().includes(nombre.toLowerCase()))
     res.json(filtered);
 }
 
@@ -40,13 +53,13 @@ export const postProduct = (req, res) => {
 export const putProductById = (req, res) => {
     const id = parseInt(req.params.id);
     const productIndex = products.findIndex((p) => p.id === id);
-    
+
     const { nombre, precio, cantidad } = req.body;
-    
+
     if (productIndex === -1) {
         return res.status(404).json({ error: 'Producto no encontrado' });
     }
-    
+
     products[productIndex] = { id: id, nombre, precio, cantidad };
     res.json(products[productIndex]);
 }

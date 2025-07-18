@@ -2,11 +2,11 @@ import { Router } from 'express'
 
 const router = Router();
 
-import { deleteProductById, getAllProducts, getProductById, getProductByName, postProduct, putProductById } from '../controllers/products.controller.js';
+import { deleteProductById, getAllProducts, getProductById, postProduct, putProductById, searchByNameProduct } from '../controllers/products.controller.js';
 
 router.get('/products', getAllProducts);
 
-router.get('/products/search', getProductByName);
+router.get('/products/search', searchByNameProduct);
 
 router.get('/products/:id', getProductById);
 
