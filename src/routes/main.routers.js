@@ -1,9 +1,8 @@
 import { Router } from 'express'
+import { main } from '../controllers/main.controller.js';
 
 const router = Router();
 
-router.get('/', (req, res) => {
-    res.json({ message: "API Rest en Node.js" })
-})
+router.get('/', main)
 
 export default router;
