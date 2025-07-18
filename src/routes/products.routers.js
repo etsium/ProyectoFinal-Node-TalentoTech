@@ -10,7 +10,7 @@ router.get('/products/search', searchByNameProduct);
 
 router.get('/products/:id', getProductById);
 
-router.post('/products', postProduct)
+router.post('/products/create', postProduct)
 
 router.put('/products/:id',putProductById)
 

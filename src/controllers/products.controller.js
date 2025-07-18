@@ -42,7 +42,6 @@ export const postProduct = (req, res) => {
         precio: precio,
         cantidad: cantidad
     }
-
     products.push(newProduct);
     res.status(201).json(newProduct);
 }
