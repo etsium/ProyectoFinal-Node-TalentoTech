@@ -14,13 +14,10 @@ export const searchByNameProduct = (req, res) => {
     const invalidParams = keys.filter(key => key !== 'nombre');
 
     if (invalidParams.length > 0) {
-        if (invalidParams.length === 1) {
-            return res.status(400).json({ error: `El parámetro '${invalidParams}' no es válido` });
-        } else if (invalidParams.length > 1) {
-            return res.status(400).json({ error: `Los parámetros '${invalidParams}' no son válidos` });
-        } else {
-            return res.status(400).json({ error: `No se proporcionó ningún parámetro válido de búsqueda` });
-        }
+        const plural = invalidParams.length > 1;
+        return res.status(400).json({
+            error: `${plural ? 'L' : 'El'}${plural ? 'os' : ''} parámetr${plural ? 'os' : 'o'} '${invalidParams}' no ${plural ? 'son' : 'es'} válido${plural ? 's' : ''}`
+        });
     }
 
     const filtered = products.filter((item) => item.nombre.toLowerCase().includes(nombre.toLowerCase()))
