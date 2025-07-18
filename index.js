@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 import prouctsRouter from './src/routes/products.routers.js';
-app.use(prouctsRouter);
+app.use('/api',prouctsRouter);
 import mainRouter from './src/routes/main.routers.js';
 app.use(mainRouter);
 
