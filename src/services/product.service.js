@@ -4,19 +4,18 @@ export const getAllProducts = async () => {
     return await model.getAllProducts();
 }
 
-export const searchByNameProduct = (nombre) => {
-    return model.searchByNameProduct(nombre);
+export const searchByNameProduct = async (nombre) => {
+    return await model.searchByNameProduct(nombre);
 }
 
-export const getProductById = (id) => {
-    return model.getProductById(id);
+export const getProductById = async (id) => {
+    return await model.getProductById(id);
 }
 
-export const postProduct = (data) => {
+export const createProduct = async (data) => {
     const { nombre, precio, stock, imagen, categoria, descripcion, tamanio, alcohol, volumen_alcohol, origen } = data
 
     const newProduct = {
-        id: model.getLenghtProduct() + 1,
         nombre: nombre,
         precio: precio,
         stock: stock,
@@ -29,13 +28,21 @@ export const postProduct = (data) => {
         origen: origen
     }
 
-    return model.postProduct(newProduct);
+    const hasEmptyField = Object.entries(newProduct).some(([key, value]) => {
+        if (key === 'imagen') return false;
+        return value === null || value === undefined || (typeof value === 'string' && value.trim() === "");
+    });
+
+    if (hasEmptyField) {
+        throw new Error('Faltan completar campos');
+    }
+
+    return await model.createProduct(newProduct);
+
 }
 
-export const updateProduct = (id, productIndex, data) => {
-
-    const product = model.getProductById(id);
-
+export const updatedProductById = async (id, data) => {
+    const product = await getProductById(id);
     const updatedProduct = {
         id: product.id,
         nombre: data.nombre || product.nombre,
@@ -50,14 +57,9 @@ export const updateProduct = (id, productIndex, data) => {
         origen: data.origen || product.origen
     };
 
-    return model.putProductById(productIndex, updatedProduct);
+    return await model.updatedProductById(id, updatedProduct);
 };
 
-
-export const getProductIndex = (id) => {
-    return model.getProductIndex(id);
-} 
-
-export const deleteProductById = (productIndex) => {
-    model.deleteProductById(productIndex);
+export const deleteProductById = async (id) => {
+    await model.deleteProductById(id);
 }

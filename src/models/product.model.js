@@ -1,53 +1,73 @@
-import fs from "fs";
-import path from "path";
-
-const __dirname = import.meta.dirname;
-
-const jsonPath = path.join(__dirname, "products.json");
-
-const json = fs.readFileSync(jsonPath, "utf-8");
-
-const products = JSON.parse(json);
-
-import {db} from './data.js'
-import { collection, getDocs } from "firebase/firestore";
+import { db } from './data.js'
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, setDoc } from "firebase/firestore";
 
 const productsCollection = collection(db, 'products');
-
-export const getLenghtProduct = () => {
-    return products.length;
-}
+let products = undefined;
 
 export const getAllProducts = async () => {
     try {
         const snapshot = await getDocs(productsCollection);
-        return snapshot.docs.map((doc) => ({id: doc.id, ...doc.data()}));
+        return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     } catch (error) {
         console.error(error);
     }
 }
 
-export const searchByNameProduct = (nombre) => {
-    return products.filter((item) => item.nombre.toLowerCase().includes(nombre.toLowerCase()))
+export const searchByNameProduct = async (nombre) => {
+    products = products || await getAllProducts();
+    return searchProduct(nombre);
+}
+const searchProduct = (nombre) => {
+    return products.filter((item) => item.nombre.toLowerCase().includes(nombre.toLowerCase()));
 }
 
-export const getProductById = (id) => {
-    return products.find(item => item.id == id)
+export const getProductById = async (id) => {
+    try {
+        const productRef = doc(productsCollection, id);
+        const snapshot = await getDoc(productRef);
+        return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
+    } catch (error) {
+        console.error(error);
+    }
 }
 
-export const postProduct = (newProduct) => {
-    products.push(newProduct);
-    return newProduct;
+export const createProduct = async (data) => {
+    try {
+        const docRef = await addDoc(productsCollection, data);
+        return { id: docRef.id, ...data };
+    } catch (error) {
+        console.error(error);
+    }
 }
 
-export const putProductById = (productIndex, product) => {
-    return products[productIndex] = product;
+export const updatedProductById = async (id, productData) => {
+    try {
+        const productRef = doc(productsCollection, id)
+        const snapshot = await getDoc(productRef);
+
+        if (!snapshot.exists()) {
+            return false;
+        }
+
+        await setDoc(productRef, productData);
+        return { id, ...productData };
+    } catch (error) {
+        console.error(error);
+    }
 }
 
-export const getProductIndex = (id) => {
-    return products.findIndex((p) => p.id === id);
-} 
+export const deleteProductById = async (id) => {
+    try {
+        const productRef = doc(productsCollection, id);
+        const snapshot = await getDoc(productRef);
 
-export const deleteProductById = (productIndex) => {
-    return products.splice(productIndex, 1);
+        if (!snapshot.exists()) {
+            return false;
+        }
+
+        await deleteDoc(productRef);
+        return true;
+    } catch (error) {
+        console.error(error);
+    }
 }

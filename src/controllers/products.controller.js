@@ -1,10 +1,11 @@
 import * as service from '../services/product.service.js'
 
 export const getAllProducts = async (req, res) => {
-    res.json(await service.getAllProducts());
+    const products = await service.getAllProducts();
+    res.json(products);
 }
 
-export const searchByNameProduct = (req, res) => {
+export const searchByNameProduct = async (req, res) => {
     const { nombre } = req.query;
     const keys = Object.keys(req.query)
     const invalidParams = keys.filter(key => key !== 'nombre');
@@ -16,44 +17,38 @@ export const searchByNameProduct = (req, res) => {
         });
     }
 
-    res.json(service.searchByNameProduct(nombre));
+    res.json(await service.searchByNameProduct(nombre));
 }
 
-export const getProductById = (req, res) => {
+export const getProductById = async (req, res) => {
     const { id } = req.params
-    const product = service.getProductById(id);
+    const product = await service.getProductById(id);
+
     if (!product) {
         res.status(404).json({ error: 'No existe el producto' })
     }
+
     res.json(product);
 }
 
-export const postProduct = (req, res) => {
-    const newProduct = service.postProduct(req.body);
-    res.status(201).json(newProduct);
+export const createProduct = async (req, res) => {
+    try {
+        const newProduct = await service.createProduct(req.body);
+        res.status(201).json(newProduct);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
 }
 
-export const putProductById = (req, res) => {
-    const id = parseInt(req.params.id);
+export const updatedProductById = async (req, res) => {
+    const id = req.params.id;
+    const updatedProduct = await service.updatedProductById(id, req.body);
 
-    const productIndex = service.getProductIndex(id);
-    if (productIndex === -1) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    const updatedProduct = service.updateProduct(id, productIndex, req.body);
     res.json(updatedProduct);
 
 }
 
-export const deleteProductById = (req, res) => {
-    const id = parseInt(req.params.id);
-    const productIndex = service.getProductIndex(id);
-
-    if (productIndex === -1) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    service.deleteProductById(productIndex)
-    res.status(200).json({ message: 'El producto fue eliminado correctamente'});   
+export const deleteProductById = async (req, res) => {
+    await service.deleteProductById(req.params.id)
+    res.status(200).json({ message: 'El producto fue eliminado correctamente' });
 }
